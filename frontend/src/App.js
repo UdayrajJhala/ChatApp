@@ -1,12 +1,23 @@
-import React from 'react';
-import ChatApp from './ChatApp';
+import React, { useState } from "react";
+import ChatApp from "./ChatApp";
+import Login from "./Login";
 
 function App() {
-    return (
-        <div className="App">
-            <ChatApp />
-        </div>
-    );
+  const [username, setUsername] = useState("");
+
+  const handleLogin = (name) => {
+    setUsername(name); 
+  };
+
+  return (
+    <div className="App">
+      {username ? (
+        <ChatApp username={username} /> 
+      ) : (
+        <Login onLogin={handleLogin} /> 
+      )}
+    </div>
+  );
 }
 
 export default App;

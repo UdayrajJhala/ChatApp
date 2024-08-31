@@ -5,7 +5,7 @@ import io from "socket.io-client";
 
 const socket = io("http://localhost:5000");
 
-function ChatApp() {
+function ChatApp({ username }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
 
@@ -22,8 +22,8 @@ function ChatApp() {
   const sendMessage = (e) => {
     e.preventDefault();
     if (input) {
-      socket.emit("chat message", input); 
-      setInput(""); 
+      socket.emit("chat message", `${username}: ${input}`);
+      setInput("");
     }
   };
 
@@ -35,11 +35,18 @@ function ChatApp() {
       </header>
 
       <div className="chat-window">
-        {messages.map((msg, index) => (
-          <div key={index} className={index % 2 === 0 ? "sender" : "receiver"}>
-            <p className="message-content">{msg}</p>
-          </div>
-        ))}
+        {messages.map((msg, index) => {
+          const [msgUsername, ...msgContent] = msg.split(": ");
+          const messageClass = msgUsername === username ? "sender" : "receiver";
+
+          return (
+            <div key={index} className={messageClass}>
+              <p className="message-content">
+                <strong>{msgUsername}</strong>: {msgContent.join(": ")}
+              </p>
+            </div>
+          );
+        })}
       </div>
 
       <form className="message-form" onSubmit={sendMessage}>

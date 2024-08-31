@@ -6,15 +6,15 @@ function App() {
   const [username, setUsername] = useState("");
 
   const handleLogin = (name) => {
-    setUsername(name); 
+    setUsername(name);
   };
 
   return (
     <div className="App">
       {username ? (
-        <ChatApp username={username} /> 
+        <ChatApp username={username} />
       ) : (
-        <Login onLogin={handleLogin} /> 
+        <Login onLogin={handleLogin} />
       )}
     </div>
   );

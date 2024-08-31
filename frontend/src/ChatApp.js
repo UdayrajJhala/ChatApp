@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import "./ChatApp.css";
 import logo from "./logo.png";
 import io from "socket.io-client";
+import CryptoJS from "crypto-js";
+
+const ENCRYPTION_KEY = process.env.REACT_APP_ENCRYPTION_KEY;
 
 function ChatApp({ username }) {
   const [messages, setMessages] = useState([]);
@@ -15,7 +18,18 @@ function ChatApp({ username }) {
     newSocket.emit("join", username);
 
     const handleMessage = (msg) => {
-      setMessages((prevMessages) => [...prevMessages, msg]);
+      let decryptedMsg = msg;
+      if (msg.includes("joined the chat") || msg.includes("left the chat")) {
+        decryptedMsg = msg;
+      } else {
+        try {
+          const bytes = CryptoJS.AES.decrypt(msg, ENCRYPTION_KEY);
+          decryptedMsg = bytes.toString(CryptoJS.enc.Utf8);
+        } catch (error) {
+          console.error("Failed to decrypt message:", error);
+        }
+      }
+      setMessages((prevMessages) => [...prevMessages, decryptedMsg]);
     };
 
     newSocket.on("chat message", handleMessage);
@@ -29,7 +43,12 @@ function ChatApp({ username }) {
   const sendMessage = (e) => {
     e.preventDefault();
     if (input && socket) {
-      socket.emit("chat message", `${username}: ${input}`);
+      const messageToSend = `${username}: ${input}`;
+      const encryptedMsg = CryptoJS.AES.encrypt(
+        messageToSend,
+        ENCRYPTION_KEY
+      ).toString();
+      socket.emit("chat message", encryptedMsg);
       setInput("");
     }
   };
@@ -44,7 +63,7 @@ function ChatApp({ username }) {
 
   const formatMessage = (msg) => {
     if (msg.includes("joined the chat") || msg.includes("left the chat")) {
-      return msg;
+      return <>{msg}</>;
     } else {
       const [msgUsername, ...msgContent] = msg.split(": ");
       return (

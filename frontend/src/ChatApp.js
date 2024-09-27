@@ -6,13 +6,15 @@ import CryptoJS from "crypto-js";
 
 const ENCRYPTION_KEY = process.env.REACT_APP_ENCRYPTION_KEY;
 
+
+
 function ChatApp({ username }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:5000");
+    const newSocket = io("https://chatapp-640m.onrender.com");
     setSocket(newSocket);
 
     newSocket.emit("join", username);

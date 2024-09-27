@@ -2,6 +2,12 @@
 
 A web based realtime chat application that allows users to send and receive encrypted messages. It utilizes Socket.io for real-time communication and CryptoJS for AES encryption.
 
+### Check it out!
+The app is deployed with the help of render (backend server) and vercel (frontend)
+<br>
+Its live on https://chat-app-udayraj.vercel.app/
+<hr>
+
 ### Technologies Used
 #### Frontend:
 
@@ -15,6 +21,11 @@ A web based realtime chat application that allows users to send and receive encr
 
 #### Encryption:
 - CryptoJS (AES)
+
+#### Deployment:
+
+- Frontend : Vercel
+- Backend : Render
 
 ## Run Locally
 

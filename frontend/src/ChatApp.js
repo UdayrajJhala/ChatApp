@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./ChatApp.css";
 import logo from "./logo.png";
 import io from "socket.io-client";
@@ -6,12 +6,11 @@ import CryptoJS from "crypto-js";
 
 const ENCRYPTION_KEY = process.env.REACT_APP_ENCRYPTION_KEY;
 
-
-
 function ChatApp({ username }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [socket, setSocket] = useState(null);
+  const chatWindowRef = useRef(null); // Create a reference for the chat window
 
   useEffect(() => {
     const newSocket = io("https://chatapp-640m.onrender.com");
@@ -41,6 +40,13 @@ function ChatApp({ username }) {
       newSocket.disconnect();
     };
   }, [username]);
+
+  // Scroll to the bottom of the chat window whenever messages change
+  useEffect(() => {
+    if (chatWindowRef.current) {
+      chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -83,7 +89,7 @@ function ChatApp({ username }) {
         <h1 className="chat-title">Chat App</h1>
       </header>
 
-      <div className="chat-window">
+      <div className="chat-window" ref={chatWindowRef}>
         {messages.map((msg, index) => (
           <div key={index} className={getMessageClass(msg)}>
             <p className="message-content">{formatMessage(msg)}</p>

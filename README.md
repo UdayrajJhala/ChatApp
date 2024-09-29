@@ -6,6 +6,7 @@ A web based realtime chat application that allows users to send and receive encr
 The app is deployed with the help of render (backend server) and vercel (frontend)
 <br>
 Its live on https://chat-app-udayraj.vercel.app/ <br><br>
+As the server is deployed on the free plan of render which turns off the server on inactivity, it may take a minute to start and accept requests from the frontend<br><br>
 Feedback is highly appreciated!
 <hr>
 

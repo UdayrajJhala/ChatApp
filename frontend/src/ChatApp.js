@@ -2,37 +2,40 @@ import React, { useState, useEffect, useRef } from "react";
 import "./ChatApp.css";
 import io from "socket.io-client";
 import CryptoJS from "crypto-js";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const ENCRYPTION_KEY = process.env.REACT_APP_ENCRYPTION_KEY;
 const url = process.env.REACT_APP_BACKEND_URL;
 
-function ChatApp({ username, room, onLoginRedirect }) {
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
+function ChatApp() {
+  const query = useQuery();
+  const username = query.get("username");
+  const room = query.get("room");
+
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(true);
   const chatWindowRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("Attempting to connect to socket at URL:", url);
+    if (!username || !room) {
+      navigate("/");
+    }
+
     const newSocket = io(url);
 
     newSocket.on("connect", () => {
-      console.log("Connected to socket!");
       setLoading(false);
       newSocket.emit("join", { username, room });
     });
 
-    newSocket.on("connect_error", (err) => {
-      console.error("Connection error:", err);
-    });
-
-    newSocket.on("disconnect", () => {
-      console.log("Socket disconnected");
-    });
-
     const handleMessage = (msg) => {
-      console.log("Received message:", msg);
       let decryptedMsg = msg;
       if (msg.includes("joined") || msg.includes("left")) {
         decryptedMsg = msg;
@@ -49,7 +52,7 @@ function ChatApp({ username, room, onLoginRedirect }) {
 
     const handleUsernameTaken = () => {
       alert("Username is already taken! Please choose another one.");
-      onLoginRedirect();
+      navigate("/");
     };
 
     newSocket.on("chat message", handleMessage);
@@ -62,7 +65,7 @@ function ChatApp({ username, room, onLoginRedirect }) {
       newSocket.off("username taken", handleUsernameTaken);
       newSocket.disconnect();
     };
-  }, [username, room, onLoginRedirect]);
+  }, [username, room, navigate]);
 
   useEffect(() => {
     if (chatWindowRef.current) {

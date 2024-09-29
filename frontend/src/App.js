@@ -1,33 +1,63 @@
 import React, { useState } from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
 import ChatApp from "./ChatApp";
-import Login from "./Login";
+import "./App.css";
 
-function App() {
+function LandingPage() {
   const [username, setUsername] = useState("");
   const [room, setRoom] = useState("");
+  const navigate = useNavigate();
 
-  const handleLogin = (name, roomName) => {
-    setUsername(name);
-    setRoom(roomName);
-  };
-
-  const handleLoginRedirect = () => {
-    setUsername("");
-    setRoom("");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (username && room) {
+      navigate(`/chat?username=${username}&room=${room}`);
+    }
   };
 
   return (
-    <div className="App">
-      {username && room ? (
-        <ChatApp
-          username={username}
-          room={room}
-          onLoginRedirect={handleLoginRedirect}
+    <div className="landing-page">
+      <h1>QuickChat</h1>
+      <p>Create or join a room and start chatting with your friends!</p>
+
+      <form onSubmit={handleSubmit} className="landing-form">
+        <input
+          type="text"
+          placeholder="Enter your username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          className="landing-input"
         />
-      ) : (
-        <Login onLogin={handleLogin} />
-      )}
+        <input
+          type="text"
+          placeholder="Enter room name"
+          value={room}
+          onChange={(e) => setRoom(e.target.value)}
+          required
+          className="landing-input"
+        />
+        <button type="submit" className="landing-button">
+          Start Chatting
+        </button>
+      </form>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/chat" element={<ChatApp />} />
+      </Routes>
+    </Router>
   );
 }
 

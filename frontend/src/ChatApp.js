@@ -114,7 +114,12 @@ function ChatApp() {
       </header>
 
       {loading ? (
-        <div className="loading">Connecting...</div>
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <div className="loading-text">
+            Please wait while the server is back up in a few seconds...
+          </div>
+        </div>
       ) : (
         <div className="chat-window" ref={chatWindowRef}>
           {messages.map((msg, index) => (

@@ -10,18 +10,29 @@ function ChatApp({ username, room, onLoginRedirect }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [socket, setSocket] = useState(null);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const chatWindowRef = useRef(null);
 
   useEffect(() => {
+    console.log("Attempting to connect to socket at URL:", url);
     const newSocket = io(url);
 
     newSocket.on("connect", () => {
-      setLoading(false); 
-      newSocket.emit("join", { username, room }); 
+      console.log("Connected to socket!");
+      setLoading(false);
+      newSocket.emit("join", { username, room });
+    });
+
+    newSocket.on("connect_error", (err) => {
+      console.error("Connection error:", err);
+    });
+
+    newSocket.on("disconnect", () => {
+      console.log("Socket disconnected");
     });
 
     const handleMessage = (msg) => {
+      console.log("Received message:", msg);
       let decryptedMsg = msg;
       if (msg.includes("joined") || msg.includes("left")) {
         decryptedMsg = msg;
@@ -44,7 +55,7 @@ function ChatApp({ username, room, onLoginRedirect }) {
     newSocket.on("chat message", handleMessage);
     newSocket.on("username taken", handleUsernameTaken);
 
-    setSocket(newSocket); 
+    setSocket(newSocket);
 
     return () => {
       newSocket.off("chat message", handleMessage);
@@ -67,7 +78,7 @@ function ChatApp({ username, room, onLoginRedirect }) {
         messageToSend,
         ENCRYPTION_KEY
       ).toString();
-      socket.emit("chat message", encryptedMsg); 
+      socket.emit("chat message", encryptedMsg);
       setInput("");
     }
   };

@@ -54,14 +54,14 @@ function LandingPage() {
       <footer className="footer">
         <span>Made by Udayraj Jhala &copy; 2024</span>
         <a
-          href="https://github.com/your-username"
+          href="https://github.com/UdayrajJhala"
           target="_blank"
           rel="noopener noreferrer"
         >
           <img src={github} alt="GitHub" className="github-logo" />
         </a>
         <a
-          href="https://www.linkedin.com/in/your-linkedin"
+          href="https://www.linkedin.com/in/udayraj27"
           target="_blank"
           rel="noopener noreferrer"
         >

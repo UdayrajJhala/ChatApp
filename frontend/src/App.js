@@ -7,6 +7,8 @@ import {
 } from "react-router-dom";
 import ChatApp from "./ChatApp";
 import "./App.css";
+import github from "./github.png";
+import linkedin from "./linkedin.png";
 
 function LandingPage() {
   const [username, setUsername] = useState("");
@@ -21,34 +23,55 @@ function LandingPage() {
   };
 
   return (
-    <div className="landing-page">
-      <h1>QuickChat</h1>
-      <p>Create or join a room and start chatting with your friends!</p>
+    <div className="main-content">
+      <div>
+        <h1>QuickChat</h1>
+        <p>Create or join a room and start chatting with your friends!</p>
 
-      <form onSubmit={handleSubmit} className="landing-form">
-        <input
-          type="text"
-          placeholder="Enter your username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          className="landing-input"
-        />
-        <input
-          type="text"
-          placeholder="Enter room name"
-          value={room}
-          onChange={(e) => setRoom(e.target.value)}
-          required
-          className="landing-input"
-        />
-        <button type="submit" className="landing-button">
-          Start Chatting
-        </button>
-      </form>
+        <form onSubmit={handleSubmit} className="landing-form">
+          <input
+            type="text"
+            placeholder="Enter your username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            className="landing-input"
+          />
+          <input
+            type="text"
+            placeholder="Enter room name"
+            value={room}
+            onChange={(e) => setRoom(e.target.value)}
+            required
+            className="landing-input"
+          />
+          <button type="submit" className="landing-button">
+            Start Chatting
+          </button>
+        </form>
+      </div>
+
+      <footer className="footer">
+        <span>Made by Udayraj Jhala &copy; 2024</span>
+        <a
+          href="https://github.com/your-username"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img src={github} alt="GitHub" className="github-logo" />
+        </a>
+        <a
+          href="https://www.linkedin.com/in/your-linkedin"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img src={linkedin} alt="LinkedIn" className="linkedin-logo" />
+        </a>
+      </footer>
     </div>
   );
 }
+
 
 function App() {
   return (

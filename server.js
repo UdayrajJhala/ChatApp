@@ -12,27 +12,46 @@ const io = new Server(server, {
   },
 });
 
+const usersInRooms = {}; 
+
 io.on("connection", (socket) => {
   console.log("A user connected");
 
-  socket.on("join", (username) => {
+  socket.on("join", ({ username, room }) => {
+    
+    if (!usersInRooms[room]) {
+      usersInRooms[room] = new Set(); 
+    }
+
+    
+    if (usersInRooms[room].has(username)) {
+      socket.emit("username taken");
+      return; 
+    }
 
     socket.username = username;
-    io.emit("chat message", `${username} joined the chat`);
+    socket.room = room;
+    usersInRooms[room].add(username);
+    socket.join(room); 
+
+    io.to(room).emit("chat message", `${username} joined ${room}`);
   });
 
   socket.on("chat message", (msg) => {
-    io.emit("chat message", msg);
+    const room = socket.room;
+    io.to(room).emit("chat message", msg); 
   });
 
   socket.on("disconnect", () => {
     if (socket.username) {
-      io.emit("chat message", `${socket.username} left the chat`);
+      const room = socket.room;
+      usersInRooms[room].delete(socket.username); 
+      io.to(room).emit("chat message", `${socket.username} left the chat`);
     }
     console.log("User disconnected");
   });
 });
 
 server.listen(5000, () => {
-  console.log("Listening on http://localhost:5000");
+  console.log("Listening");
 });

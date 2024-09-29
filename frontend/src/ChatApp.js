@@ -1,26 +1,29 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./ChatApp.css";
-import logo from "./logo.png";
 import io from "socket.io-client";
 import CryptoJS from "crypto-js";
 
 const ENCRYPTION_KEY = process.env.REACT_APP_ENCRYPTION_KEY;
+const url = process.env.REACT_APP_BACKEND_URL;
 
-function ChatApp({ username }) {
+function ChatApp({ username, room, onLoginRedirect }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [socket, setSocket] = useState(null);
-  const chatWindowRef = useRef(null); // Create a reference for the chat window
+  const [loading, setLoading] = useState(true); 
+  const chatWindowRef = useRef(null);
 
   useEffect(() => {
-    const newSocket = io("https://chatapp-640m.onrender.com");
-    setSocket(newSocket);
+    const newSocket = io(url);
 
-    newSocket.emit("join", username);
+    newSocket.on("connect", () => {
+      setLoading(false); 
+      newSocket.emit("join", { username, room }); 
+    });
 
     const handleMessage = (msg) => {
       let decryptedMsg = msg;
-      if (msg.includes("joined the chat") || msg.includes("left the chat")) {
+      if (msg.includes("joined") || msg.includes("left")) {
         decryptedMsg = msg;
       } else {
         try {
@@ -33,15 +36,23 @@ function ChatApp({ username }) {
       setMessages((prevMessages) => [...prevMessages, decryptedMsg]);
     };
 
+    const handleUsernameTaken = () => {
+      alert("Username is already taken! Please choose another one.");
+      onLoginRedirect();
+    };
+
     newSocket.on("chat message", handleMessage);
+    newSocket.on("username taken", handleUsernameTaken);
+
+    setSocket(newSocket); 
 
     return () => {
       newSocket.off("chat message", handleMessage);
+      newSocket.off("username taken", handleUsernameTaken);
       newSocket.disconnect();
     };
-  }, [username]);
+  }, [username, room, onLoginRedirect]);
 
-  // Scroll to the bottom of the chat window whenever messages change
   useEffect(() => {
     if (chatWindowRef.current) {
       chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
@@ -56,13 +67,13 @@ function ChatApp({ username }) {
         messageToSend,
         ENCRYPTION_KEY
       ).toString();
-      socket.emit("chat message", encryptedMsg);
+      socket.emit("chat message", encryptedMsg); 
       setInput("");
     }
   };
 
   const getMessageClass = (msg) => {
-    if (msg.includes("joined the chat") || msg.includes("left the chat")) {
+    if (msg.includes("joined") || msg.includes("left")) {
       return "system-message";
     } else {
       return msg.startsWith(`${username}:`) ? "sender" : "receiver";
@@ -70,7 +81,7 @@ function ChatApp({ username }) {
   };
 
   const formatMessage = (msg) => {
-    if (msg.includes("joined the chat") || msg.includes("left the chat")) {
+    if (msg.includes("joined") || msg.includes("left")) {
       return <>{msg}</>;
     } else {
       const [msgUsername, ...msgContent] = msg.split(": ");
@@ -85,17 +96,20 @@ function ChatApp({ username }) {
   return (
     <div className="chat-app">
       <header className="chat-header">
-        <img src={logo} alt="Logo" className="logo" />
-        <h1 className="chat-title">Chat App</h1>
+        <h1 className="chat-title">Chat Room: {room}</h1>
       </header>
 
-      <div className="chat-window" ref={chatWindowRef}>
-        {messages.map((msg, index) => (
-          <div key={index} className={getMessageClass(msg)}>
-            <p className="message-content">{formatMessage(msg)}</p>
-          </div>
-        ))}
-      </div>
+      {loading ? (
+        <div className="loading">Connecting...</div>
+      ) : (
+        <div className="chat-window" ref={chatWindowRef}>
+          {messages.map((msg, index) => (
+            <div key={index} className={getMessageClass(msg)}>
+              <p className="message-content">{formatMessage(msg)}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       <form className="message-form" onSubmit={sendMessage}>
         <input

@@ -107,10 +107,20 @@ function ChatApp() {
     }
   };
 
+  const handleLeaveRoom = () => {
+    if (socket) {
+      socket.disconnect();
+    }
+    navigate("/"); 
+  };
+
   return (
     <div className="chat-app">
       <header className="chat-header">
         <h1 className="chat-title">Chat Room: {room}</h1>
+        <button className="leave-button" onClick={handleLeaveRoom}>
+          Leave Room
+        </button>
       </header>
 
       {loading ? (

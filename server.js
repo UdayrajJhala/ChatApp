@@ -1,6 +1,7 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
+import axios from "axios";
 
 const app = express();
 const server = http.createServer(app);
@@ -55,6 +56,19 @@ io.on("connection", (socket) => {
     console.log("User disconnected");
   });
 });
+
+app.get("/ping", (req, res) => {
+  res.send("Server is alive");
+});
+
+setInterval(async () => {
+  try {
+    const response = await axios.get("https://chatapp-640m.onrender.com/ping");
+    console.log("Self-ping successful:", response.data);
+  } catch (error) {
+    console.error("Self-ping error:", error.message);
+  }
+}, 5 * 60 * 1000);
 
 server.listen(5000, () => {
   console.log("Listening on port 5000");

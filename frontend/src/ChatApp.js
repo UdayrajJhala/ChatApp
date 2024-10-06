@@ -111,7 +111,7 @@ function ChatApp() {
     if (socket) {
       socket.disconnect();
     }
-    navigate("/"); 
+    navigate("/");
   };
 
   return (
